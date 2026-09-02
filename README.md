@@ -79,6 +79,19 @@ repo) or GitHub Team (org-wide, via organization rulesets). Nothing needs
 to change in these workflows when that happens — just mark them as
 required status checks once the org is on a plan that supports it.
 
+## Ruff configuration
+
+**`templates/ruff.toml.example`** — copy into each *Python* repo's root
+as `ruff.toml` (or merge into an existing `pyproject.toml`). Without this,
+`ruff check`/`ruff format --check` still run but only apply Ruff's default
+rule set, which does not include type-hint enforcement — the `ANN` rules
+in this template are what actually make "type hints required on public
+functions" (from `CONTRIBUTING.md`) a checked rule rather than just text.
+Verified against sample code before shipping: a function missing type
+hints is correctly flagged (`ANN001`/`ANN201`); properly annotated code
+passes clean; `ruff format --check` and import-ordering (`I`) both behave
+as expected.
+
 ## What lives where
 
 | File | Canonical (this repo) | Consuming repo |
