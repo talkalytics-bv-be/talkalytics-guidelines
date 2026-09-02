@@ -1,0 +1,78 @@
+# Copy this file into a consuming repo at:
+#   .github/workflows/guidelines-auto-update.yml
+#
+# Periodically checks whether talkalytics-guidelines has commits on main
+# this repo hasn't pulled in yet. If so, bumps the .guidelines submodule,
+# regenerates CONTRIBUTING.md/CLAUDE.md/SECURITY.md, and opens a PR — so
+# staying in sync is something you review and merge, not something you
+# have to remember to go check for.
+#
+# NOTE on GITHUB_TOKEN limitation: PRs opened using the repo's default
+# GITHUB_TOKEN do NOT automatically trigger other workflows (GitHub does
+# this deliberately, to prevent accidental recursive workflow runs). That
+# means checks.yml (Ruff, secret scan, naming check, guidelines-sync)
+# will NOT run automatically on the PR this creates — review the diff
+# manually, or push an empty commit / close-reopen the PR to trigger CI
+# before merging. To get full automatic CI on these PRs instead, replace
+# secrets.GITHUB_TOKEN below with a personal access token stored as a
+# repo or org secret (e.g. GUIDELINES_SYNC_PAT, 'repo' scope) — PRs
+# opened with a PAT trigger workflows normally.
+
+name: Guidelines auto-update
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # every Monday 08:00 UTC — adjust to taste
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-for-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update .guidelines to latest main
+        run: git submodule update --remote .guidelines
+
+      - name: Regenerate guideline files
+        run: |
+          if [ ! -x .guidelines/scripts/sync-guidelines.sh ]; then
+            echo "sync-guidelines.sh not found or not executable — skipping."
+            exit 0
+          fi
+          ./.guidelines/scripts/sync-guidelines.sh
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR with the update
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "update-shared-guidelines"
+          title: "Update shared guidelines"
+          body: |
+            Automated update: `talkalytics-guidelines` has commits on `main`
+            this repo hadn't pulled in yet. This PR bumps the `.guidelines`
+            submodule pointer and regenerates `CONTRIBUTING.md`/`CLAUDE.md`/
+            `SECURITY.md` from the new canonical content.
+
+            This PR was opened with the default token, so CI checks won't
+            run on it automatically — review the diff, then either push an
+            empty commit or close/reopen to trigger checks before merging.
+          branch: chore/guidelines-sync
+          delete-branch: true

@@ -1,0 +1,91 @@
+name: Talkalytics shared checks
+
+# Reusable workflow — the real check logic lives here, once, so it isn't
+# duplicated across repos. Consuming repos call this via a thin caller
+# workflow (see templates/workflows/checks-caller.yml).
+#
+# NOTE — GitHub Free for organizations does not enforce required status
+# checks on private repos. These jobs still run and report pass/fail on
+# every PR (visible in the PR checks list), but nothing currently stops a
+# PR from being merged with a red check. That changes automatically the
+# moment the org upgrades to GitHub Team and these are marked as required
+# status checks — no changes needed here when that happens.
+
+on:
+  workflow_call:
+
+jobs:
+  ruff:
+    name: Ruff (lint + format)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "check ."
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "format --check ."
+
+  secret-scan:
+    name: Secret scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+
+  naming-check:
+    name: Branch & commit naming
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # Expected: {firstname-lastname}/feature/{description} or .../fix/{description}
+          # (chore/guidelines-sync is exempt — it's the auto-update workflow's bot branch)
+          if ! [[ "$BRANCH" =~ ^(chore/guidelines-sync|[a-z]+(-[a-z]+)*/(feature|fix)/[a-z0-9]+(-[a-z0-9]+)*)$ ]]; then
+            echo "Branch name '$BRANCH' doesn't match {firstname-lastname}/feature|fix/{description}"
+            echo "Example: ben-claes/feature/tenant-onboarding"
+            exit 1
+          fi
+          echo "OK: $BRANCH"
+
+      - name: Check commit messages are kebab-case
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          status=0
+          while IFS= read -r subject; do
+            if ! [[ "$subject" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+              echo "Commit subject is not fully kebab-case: '$subject'"
+              status=1
+            fi
+          done < <(git log --format=%s "$BASE_SHA..$HEAD_SHA")
+          exit $status
+
+  guidelines-sync:
+    name: Guidelines sync check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Verify generated guideline files are up to date
+        run: |
+          if [ ! -d .guidelines ]; then
+            echo "No .guidelines submodule in this repo — skipping."
+            exit 0
+          fi
+          ./.guidelines/scripts/sync-guidelines.sh --check
