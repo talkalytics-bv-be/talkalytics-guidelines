@@ -1,0 +1,31 @@
+# Copy this into each dbt repo's root as .sqlfluff.
+#
+# Uses the "jinja" templater (not "dbt") with apply_dbt_builtins, which
+# stubs ref()/source()/config()/var() etc. well enough to lint style and
+# formatting WITHOUT a live database connection or a full `dbt deps` /
+# profiles.yml setup — appropriate for a generic CI job that shouldn't
+# need real warehouse credentials. It won't validate that ref() targets
+# actually exist (that needs the real "dbt" templater + a live project),
+# only that the SQL/Jinja is well-formed and styled consistently.
+#
+# Tested end-to-end before shipping: a model using {{ ref(...) }} lints
+# and auto-fixes correctly (keyword case, indentation, one column per
+# line); a directory with no .sql files is a clean no-op; violations
+# correctly produce a non-zero exit code, clean files exit 0.
+#
+# CONFIRM: dialect is set to tsql (Microsoft SQL Server / Azure SQL),
+# based on the Azure SQL Database usage noted in the infra setup. If any
+# dbt repo targets a different warehouse (Snowflake, BigQuery, Postgres,
+# etc.), change the dialect below — run `sqlfluff dialects` to see the
+# full list.
+
+[sqlfluff]
+templater = jinja
+dialect = tsql
+max_line_length = 120
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
