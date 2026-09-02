@@ -1,0 +1,38 @@
+# Copy this file into each consuming repo as .pre-commit-config.yaml.
+#
+# Setup (once per clone):
+#   pip install pre-commit --break-system-packages   # or: brew install pre-commit
+#   pre-commit install                                # runs on `git commit`
+#   pre-commit install --hook-type commit-msg          # needed for the commit-msg check below
+#
+# This is the one enforcement layer that works today regardless of GitHub
+# plan — it runs locally, before the commit is even created. It can still
+# be bypassed with `git commit --no-verify`, so it's a real speed bump,
+# not a hard gate — the CI checks (see templates/workflows/) are the
+# backstop, and become a hard gate once required status checks are
+# available on the org's GitHub plan.
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: commit-msg-kebab-case
+        name: Commit message must be fully kebab-case
+        entry: >-
+          bash -c 'msg=$(head -1 "$1");
+          [[ "$msg" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] ||
+          { echo "Commit message must be fully kebab-case, e.g. fix-cookie-domain-redirect-loop"; exit 1; }'
+          --
+        language: system
+        stages: [commit-msg]

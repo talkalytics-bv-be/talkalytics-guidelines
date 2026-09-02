@@ -1,0 +1,12 @@
+<!--
+Copy this into the consuming repo's root as CLAUDE.local.md and fill it
+in. This content gets appended below the canonical CLAUDE.md content when
+sync-guidelines.sh runs — only repo-specific gotchas an AI assistant would
+otherwise get wrong, not general rules already covered in the shared file.
+-->
+
+## Repo-specific gotchas
+
+[e.g. "This repo's tests require a running local Cosmos DB emulator — see
+CONTRIBUTING.local.md for setup" or "Don't touch environments/demo/, it's
+intentionally left on the legacy config pattern."]

@@ -1,0 +1,31 @@
+# Copy this file into a consuming repo at:
+#   .github/workflows/check-guidelines-sync.yml
+#
+# Fails the build if CONTRIBUTING.md, CLAUDE.md, or SECURITY.md at the repo
+# root don't match what sync-guidelines.sh would generate right now — e.g.
+# someone edited a generated file directly, or forgot to re-sync after
+# updating the .guidelines submodule.
+
+name: Check guidelines sync
+
+on:
+  pull_request:
+    paths:
+      - CONTRIBUTING.md
+      - CLAUDE.md
+      - SECURITY.md
+      - CONTRIBUTING.local.md
+      - CLAUDE.local.md
+      - SECURITY.local.md
+      - .guidelines/**
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Verify generated guideline files are up to date
+        run: ./.guidelines/scripts/sync-guidelines.sh --check
