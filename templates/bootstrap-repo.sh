@@ -42,6 +42,9 @@ echo "==> Wiring up CI caller workflow"
 mkdir -p .github/workflows
 [ -f .github/workflows/checks.yml ] || cp .guidelines/templates/workflows/checks-caller.yml .github/workflows/checks.yml
 
+echo "==> Wiring up guidelines auto-update workflow"
+[ -f .github/workflows/guidelines-auto-update.yml ] || cp .guidelines/templates/workflows/guidelines-auto-update.yml .github/workflows/guidelines-auto-update.yml
+
 if [ "$PYTHON_REPO" = true ]; then
   echo "==> Python repo: adding ruff.toml (skipped if ruff.toml or pyproject.toml already exists)"
   if [ ! -f ruff.toml ] && [ ! -f pyproject.toml ]; then
