@@ -1,0 +1,33 @@
+# Copy this into each Python repo's root as ruff.toml (or merge the
+# [lint]/[format] sections into an existing pyproject.toml under
+# [tool.ruff] / [tool.ruff.lint] / [tool.ruff.format] if the repo already
+# has one).
+#
+# Without a config file, `ruff check` / `ruff format --check` still run
+# but only apply Ruff's default rule set — which does NOT include type
+# hint enforcement. The ANN rules below are what actually enforces the
+# "type hints required on public functions" rule in CONTRIBUTING.md.
+# Verified against sample code: missing type hints are correctly flagged
+# (ANN001/ANN201), properly annotated code passes clean.
+
+target-version = "py312"  # adjust to the repo's actual Python version
+line-length = 100
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort (import ordering)
+    "UP",   # pyupgrade (modern syntax)
+    "B",    # flake8-bugbear (common bugs / footguns)
+    "ANN",  # flake8-annotations (type hints — required by CONTRIBUTING.md)
+]
+ignore = [
+    "ANN401",  # allow `Any` in type hints where genuinely needed
+]
+
+[lint.per-file-ignores]
+"tests/**" = ["ANN"]  # don't require type hints in test files
+
+[format]
+quote-style = "double"
