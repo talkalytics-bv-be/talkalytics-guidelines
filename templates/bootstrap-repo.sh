@@ -50,8 +50,10 @@ if [ "$PYTHON_REPO" = true ]; then
   echo "==> Adding pre-commit config (with Ruff)"
   [ -f .pre-commit-config.yaml ] || cp .guidelines/templates/pre-commit-config.yaml.example .pre-commit-config.yaml
 else
-  echo "==> Non-Python repo: adding pre-commit config (no Ruff hook)"
+  echo "==> Non-Python repo: adding pre-commit config (SQLFluff + gitleaks, no Ruff hook)"
   [ -f .pre-commit-config.yaml ] || cp .guidelines/templates/pre-commit-config-non-python.yaml.example .pre-commit-config.yaml
+  echo "==> Adding .sqlfluff config (skipped if one already exists)"
+  [ -f .sqlfluff ] || cp .guidelines/templates/sqlfluff-config.example .sqlfluff
 fi
 
 echo "==> Generating CONTRIBUTING.md / CLAUDE.md / SECURITY.md"
