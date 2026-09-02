@@ -12,7 +12,7 @@ name: Talkalytics shared checks
 # status checks — no changes needed here when that happens.
 
 on:
-  workflow_call:
+  workflow_call
 
 jobs:
   ruff:
