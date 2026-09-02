@@ -1,0 +1,23 @@
+# Copy this file into each consuming repo at:
+#   .github/workflows/checks.yml
+#
+# This is intentionally thin — the actual check logic (Ruff, secret
+# scanning, naming, guidelines sync) lives once in talkalytics-guidelines
+# and is pulled in via `uses:`. Updating a check means editing it in
+# talkalytics-guidelines, not in every repo.
+#
+# One-time setup this requires:
+#   - In the talkalytics-guidelines repo: Settings → Actions → General →
+#     "Access" → allow access from repositories in the talkalytics-bv-be
+#     organization (needed for a private repo's reusable workflow to be
+#     callable from other private repos).
+
+name: Checks
+
+on:
+  pull_request:
+
+jobs:
+  shared-checks:
+    uses: talkalytics-bv-be/talkalytics-guidelines/.github/workflows/checks.yml@main
+    secrets: inherit

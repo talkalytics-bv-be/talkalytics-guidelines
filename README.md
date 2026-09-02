@@ -52,6 +52,33 @@ Copy `templates/check-guidelines-sync.yml` into a consuming repo's
 drift from the canonical source (e.g. someone edited a generated file
 directly, or forgot to re-sync after a submodule update).
 
+## Enforcement
+
+A guidelines doc only matters if breaking it gets caught. Three layers,
+in order of how much they actually block anything:
+
+1. **`.github/workflows/checks.yml`** (in this repo) — the real check
+   logic: Ruff (lint + format), secret scanning (gitleaks), branch/commit
+   naming, and the guidelines-sync check. Defined once, here.
+2. **`templates/workflows/checks-caller.yml`** — copy into each consuming
+   repo as `.github/workflows/checks.yml`. It's a thin `uses:` reference
+   to (1), so the logic stays single-sourced. One-time setup: this repo's
+   Settings → Actions → General → Access must allow use by other repos in
+   `talkalytics-bv-be` (private-repo reusable workflows need this).
+3. **`templates/pre-commit-config.yaml.example`** — copy into each
+   consuming repo as `.pre-commit-config.yaml`. Runs Ruff, gitleaks, and
+   the kebab-case commit check locally before a commit is even made.
+   Bypassable with `--no-verify`, but genuine friction, and the only
+   layer here that doesn't depend on a GitHub plan.
+
+**Important caveat:** GitHub Free for organizations does not enforce
+required status checks or required reviews on private repositories. The
+CI checks in (1)/(2) run and report pass/fail on every PR, but nothing
+currently blocks a merge on a red check — that requires GitHub Pro (per
+repo) or GitHub Team (org-wide, via organization rulesets). Nothing needs
+to change in these workflows when that happens — just mark them as
+required status checks once the org is on a plan that supports it.
+
 ## What lives where
 
 | File | Canonical (this repo) | Consuming repo |
