@@ -1,10 +1,13 @@
-# Copy this file into a consuming repo at:
-#   .github/workflows/check-guidelines-sync.yml
+# Copy this file into a consuming repo's `.github/workflows/` to fail CI
+# automatically if the generated files ever drift from the canonical
+# source (e.g. someone edited a generated file directly, or forgot to
+# re-sync after a submodule update).
 #
-# Fails the build if CONTRIBUTING.md, CLAUDE.md, or SECURITY.md at the repo
-# root don't match what sync-guidelines.sh would generate right now — e.g.
-# someone edited a generated file directly, or forgot to re-sync after
-# updating the .guidelines submodule.
+# NOTE: superseded by templates/workflows/checks-caller.yml, whose
+# `guidelines-sync` job already does exactly this. Only use this file
+# standalone if a repo needs the sync check but doesn't want the rest of
+# checks.yml (Ruff/gitleaks/naming) — otherwise use checks-caller.yml and
+# skip this one to avoid a duplicate check.
 
 name: Check guidelines sync
 

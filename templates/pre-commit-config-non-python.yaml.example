@@ -1,0 +1,26 @@
+# Copy this file into a non-Python repo (e.g. a dbt repo) as
+# .pre-commit-config.yaml. Same as pre-commit-config.yaml.example but
+# without the Ruff hook, since there's no Python to lint.
+#
+# Setup (once per clone):
+#   pip install pre-commit --break-system-packages   # or: brew install pre-commit
+#   pre-commit install
+#   pre-commit install --hook-type commit-msg
+
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: commit-msg-kebab-case
+        name: Commit message must be fully kebab-case
+        entry: >-
+          bash -c 'msg=$(head -1 "$1");
+          [[ "$msg" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] ||
+          { echo "Commit message must be fully kebab-case, e.g. fix-cookie-domain-redirect-loop"; exit 1; }'
+          --
+        language: system
+        stages: [commit-msg]
