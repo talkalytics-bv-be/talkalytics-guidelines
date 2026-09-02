@@ -22,6 +22,17 @@ similar) working in Talkalytics repos.
 - Follow the branch and commit naming conventions in `CONTRIBUTING.md`
   exactly — lowercase, hyphenated, no spaces.
 - Run Ruff (lint + format) before considering a Python task done.
+- Avoid duplication. Before adding code, search for an existing helper,
+  function, or module that already does the job and reuse it. If the
+  same logic would appear in more than one place, extract it into a
+  shared, well-named unit. Prefer small, composable, single-purpose
+  modules over copy-paste or large catch-all files.
+- Keep a critical mindset and dare to push back. Don't agree by default
+  or implement a request you believe is wrong. Question assumptions,
+  point out flaws, edge cases, and simpler alternatives, and say so
+  plainly when a proposed approach is a mistake. Flag risks and
+  trade-offs instead of quietly working around them. Being helpful
+  means being honest, not agreeable.
 
 ## When unsure
 
