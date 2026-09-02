@@ -9,38 +9,34 @@ Manual steps, if you're not using the script (this is what the script
 does internally):
 
 ​```bash
-cd /path/to/new-repo
 
-# 1. Add the submodule properly
-git submodule add https://github.com/talkalytics-bv-be/talkalytics-guidelines .guidelines
-git submodule update --init --recursive
+cd /path/to/talkalytics-codebase
 
-# 2. Repo-specific notes (fill these in after)
-cp .guidelines/templates/CONTRIBUTING.local.md.example CONTRIBUTING.local.md
-cp .guidelines/templates/CLAUDE.local.md.example CLAUDE.local.md
+# Download straight to the parent directory — never lands inside the repo this time
+curl -o ../bootstrap-repo.sh https://raw.githubusercontent.com/talkalytics-bv-be/talkalytics-guidelines/production/templates/bootstrap-repo.sh
+chmod +x ../bootstrap-repo.sh
 
-# 3. CI workflows
-mkdir -p .github/workflows
-cp .guidelines/templates/workflows/checks-caller.yml .github/workflows/checks.yml
-cp .guidelines/templates/workflows/guidelines-auto-update.yml .github/workflows/guidelines-auto-update.yml
+# Run it against this repo — no --python, this is dbt
+../bootstrap-repo.sh
 
-# 4. Python-only: Ruff config + pre-commit with Ruff
-cp .guidelines/templates/ruff.toml.example ruff.toml
-cp .guidelines/templates/pre-commit-config.yaml.example .pre-commit-config.yaml
-# Non-Python repos: use this instead of the line above
-# cp .guidelines/templates/pre-commit-config-non-python.yaml.example .pre-commit-config.yaml
+# Fill these in with this repo's specifics before committing
+open CONTRIBUTING.local.md CLAUDE.local.md   # or edit however you prefer
 
-# 5. Generate CONTRIBUTING.md / CLAUDE.md / SECURITY.md
-./.guidelines/scripts/sync-guidelines.sh
+# Quick look at what got generated
+cat CONTRIBUTING.md
 
-# 6. Commit
+# Commit
 git add .
 git commit -m "add-shared-guidelines-and-checks"
 git push
 
-# 7. Local pre-commit hooks (once per clone, not per repo)
+# Local pre-commit hooks (once per clone, not per repo)
 pre-commit install
 pre-commit install --hook-type commit-msg
+
+# Clean up the script now that it's done its job
+rm ../bootstrap-repo.sh
+
 ​```
 
 Create repo-specific notes files at that repo's root:
