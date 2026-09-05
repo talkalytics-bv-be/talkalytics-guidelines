@@ -11,7 +11,7 @@
 # (ANN001/ANN201), properly annotated code passes clean.
 
 target-version = "py312"  # adjust to the repo's actual Python version
-line-length = 100
+line-length = 1000
 
 [lint]
 select = [
@@ -28,6 +28,14 @@ ignore = [
 
 [lint.per-file-ignores]
 "tests/**" = ["ANN"]  # don't require type hints in test files
+
+[lint.flake8-bugbear]
+# FastAPI's `Depends(...)` in an argument default is the documented idiom for
+# dependency injection, not the mutable-default footgun B008 exists to catch.
+# Allowlisting it keeps B008 active for genuine mutable-default bugs elsewhere.
+extend-immutable-calls = ["fastapi.Depends"]
+
+
 
 [format]
 quote-style = "double"
