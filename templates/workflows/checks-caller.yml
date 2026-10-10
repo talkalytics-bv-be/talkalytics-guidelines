@@ -19,5 +19,5 @@ on:
 
 jobs:
   shared-checks:
-    uses: talkalytics-bv-be/talkalytics-guidelines/.github/workflows/checks.yml@main
+    uses: talkalytics-bv-be/talkalytics-guidelines/.github/workflows/checks.yml@production
     secrets: inherit

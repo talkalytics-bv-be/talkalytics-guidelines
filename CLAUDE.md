@@ -33,6 +33,9 @@ similar) working in Talkalytics repos.
   plainly when a proposed approach is a mistake. Flag risks and
   trade-offs instead of quietly working around them. Being helpful
   means being honest, not agreeable.
+- If you change something, do it step by step and explain on every 
+  step what's the issue, why it needs to be solved and how you will
+  do it.
 
 ## When unsure
 
