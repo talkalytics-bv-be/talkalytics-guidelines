@@ -1,7 +1,7 @@
 # Copy this file into a consuming repo at:
 #   .github/workflows/guidelines-auto-update.yml
 #
-# Periodically checks whether talkalytics-guidelines has commits on main
+# Periodically checks whether talkalytics-guidelines has commits on production
 # this repo hasn't pulled in yet. If so, bumps the .guidelines submodule,
 # regenerates CONTRIBUTING.md/CLAUDE.md/SECURITY.md, and opens a PR — so
 # staying in sync is something you review and merge, not something you
@@ -38,7 +38,7 @@ jobs:
           submodules: recursive
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update .guidelines to latest main
+      - name: Update .guidelines to latest production
         run: git submodule update --remote .guidelines
 
       - name: Regenerate guideline files
@@ -66,7 +66,7 @@ jobs:
           commit-message: "update-shared-guidelines"
           title: "Update shared guidelines"
           body: |
-            Automated update: `talkalytics-guidelines` has commits on `main`
+            Automated update: `talkalytics-guidelines` has commits on `production`
             this repo hadn't pulled in yet. This PR bumps the `.guidelines`
             submodule pointer and regenerates `CONTRIBUTING.md`/`CLAUDE.md`/
             `SECURITY.md` from the new canonical content.
