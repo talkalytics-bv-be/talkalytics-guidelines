@@ -23,6 +23,11 @@ generated — see `CONTRIBUTING.local.md` in that repo, not this file.
 - Fully kebab-case, all lowercase, no spaces.
 - Example: `fix-cookie-domain-redirect-loop`, `add-tenant-schema-validation`
 
+## Structure
+- Every solution should be struxtured by logical commits, supplemented
+   with a suggestion with a commit message.
+
+
 ## Code style
 
 - **Python** — [Ruff](https://docs.astral.sh/ruff/) for linting and
